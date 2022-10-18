@@ -1,0 +1,6 @@
+{
+    "test_ood_score": {
+        "dataset/test/0.jpg": 0.1111,
+        "dataset/test/1.jpg": 0.7999
+    }
+}
