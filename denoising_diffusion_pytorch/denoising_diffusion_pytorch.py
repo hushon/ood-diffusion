@@ -244,16 +244,7 @@ class GaussianDiffusion(nn.Module):
 
         return loss
 
-    # def forward(self, x, *args, **kwargs):
-    #     b = x.size(0)
-    #     device = x.device
-    #     t = torch.randint(0, self.num_timesteps, (b,), device=device, dtype=torch.long)
-    #     with torch.no_grad():
-    #         x = self.feat_net(x)
-    #     return self.p_losses(x, t, *args, **kwargs)
-
-    # def compute_loglikelihood(self, x):
-    def forward(self, x):
+    def compute_loglikelihood(self, x):
         x = self.feat_net(x)
 
         b = x.size(0)
@@ -265,6 +256,19 @@ class GaussianDiffusion(nn.Module):
             l.append(losses)
         return torch.mean(torch.stack(l, dim=0), dim=0)
 
+    def compute_loss(self, x, *args, **kwargs):
+        b = x.size(0)
+        device = x.device
+        t = torch.randint(0, self.num_timesteps, (b,), device=device, dtype=torch.long)
+        with torch.no_grad():
+            x = self.feat_net(x)
+        return self.p_losses(x, t, *args, **kwargs)
+
+    def forward(self, x, train=True, *args, **kwargs):
+        if train:
+            return self.compute_loss(x, *args, **kwargs)
+        else:
+            return self.compute_loglikelihood(x)
 
 
 class MultiEpochsDataLoader(torch.utils.data.DataLoader):
@@ -324,6 +328,7 @@ class Trainer(object):
 
         self.dataset = dataset
         self.data_loader = MultiEpochsDataLoader(self.dataset, batch_size=train_batch_size, num_workers=8*torch.cuda.device_count(), shuffle=True)
+        self.data_loader_test = MultiEpochsDataLoader(self.dataset, batch_size=train_batch_size)
         self.data_loader_cycle = cycle(self.data_loader)
         self.optimizer = torch.optim.Adam(diffusion_model.parameters(), lr=train_lr, weight_decay=1e-5)
         self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, self.train_num_steps)
@@ -401,12 +406,11 @@ class Trainer(object):
         # compute nll on validation set
         dp_model = nn.parallel.DataParallel(self.ema.ema_model)
         collect = []
-        for data in tqdm(self.data_loader, desc="validation batches"):
+        for data in tqdm(self.data_loader_test, desc="validation batches"):
             data = data.cuda()
             with amp.autocast(enabled=self.fp16):
                 # losses = self.model.compute_loglikelihood(data)
-                losses = dp_model(data)
+                losses = dp_model(data, train=False)
             collect.append(losses)
         collect = torch.cat(collect, 0)
-        print(collect)
-        torch.save(collect, self.results_folder/"validation_nll.pth")
+        return collect

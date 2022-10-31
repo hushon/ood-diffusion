@@ -1,14 +1,14 @@
 {
     "train_images": [
-        "dataset/train/0.jpg",
-        "dataset/train/1.jpg",
-        "dataset/train/2.jpg",
-        "dataset/train/3.jpg",
-        "dataset/train/4.jpg"
+        "./dataset/train/0.jpg",
+        "./dataset/train/1.jpg",
+        "./dataset/train/2.jpg",
+        "./dataset/train/3.jpg",
+        "./dataset/train/4.jpg"
     ],
 
     "test_images": [
-        "dataset/test/0.jpg",
-        "dataset/test/1.jpg"
+        "./dataset/test/0.jpg",
+        "./dataset/test/1.jpg"
     ]
 }
