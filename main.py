@@ -25,7 +25,7 @@ class PathListDataset(torch.utils.data.Dataset):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--phase', type=str, choices=['train', 'test'], default='train', required=True)
+    parser.add_argument('--phase', type=str, choices=['train', 'test'], required=True)
     parser.add_argument('--log_dir', type=str, default='./results/')
     parser.add_argument('--ckpt_path', type=str, default=None)
     parser.add_argument('--input_json_path', type=str, default='sample_input.json', required=True)
@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     TIMESTAMP = datetime.now()
     RESULTS_FOLDER = pathlib.Path(f"{args.log_dir}/{TIMESTAMP:%Y%m%d-%H%M%S}")
-    RESULTS_FOLDER.mkdir()
+    RESULTS_FOLDER.mkdir(parents=True)
 
 
     net = Unet(

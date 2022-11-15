@@ -6,13 +6,21 @@
 Python 3.8, PyTorch 1.10, CUDA 11.3
 ```
 
+### Docker image
+
+[Docker image for this project is available](https://hub.docker.com/repository/docker/hushon/ood-diffusion).
+
+```bash
+$ docker pull hushon/ood-diffusion
+```
+
 ## I/O format
 JSON format is used to store the inputs/outputs of this module.
 Input includes the training images and the test images.
 Ouput includes the per-sample OoD evaluation scores.
 
 `sample_input.json`
-```
+```json
 {
     "train_images": [
         "./dataset/train/0.jpg",
@@ -30,7 +38,7 @@ Ouput includes the per-sample OoD evaluation scores.
 ```
 
 `sample_output.json`
-```
+```json
 {
     "test_ood_score": {
         "./dataset/test/0.jpg": 0.1111,
@@ -38,6 +46,11 @@ Ouput includes the per-sample OoD evaluation scores.
     }
 }
 ```
+
+## Pre-trained weights
+
+Pre-trained PyTorch checkpoints are available at the [releases page](https://github.com/hushon/ood-diffusion/releases/).
+Currently we have a model trained on DramaQA dataset available.
 
 ## Training
 
